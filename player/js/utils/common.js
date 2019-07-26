@@ -1,6 +1,5 @@
 var subframeEnabled = true;
 var expressionsPlugin;
-var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 var cachedColors = {};
 var bm_rounder = Math.round;
 var bm_rnd;
@@ -11,6 +10,9 @@ var bm_floor = Math.floor;
 var bm_max = Math.max;
 var bm_min = Math.min;
 var blitter = 10;
+
+var systemInfo = wx.getSystemInfoSync()
+var isIOS = systemInfo.platform === 'ios'
 
 var BMMath = {};
 (function(){
@@ -52,6 +54,7 @@ function roundValues(flag){
 }
 roundValues(false);
 
+// TODO
 function styleDiv(element){
     element.style.position = 'absolute';
     element.style.top = 0;

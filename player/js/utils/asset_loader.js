@@ -1,44 +1,55 @@
-var assetLoader = (function(){
+var assetLoader = (function () {
 
-	function formatResponse(xhr) {
-		if(xhr.response && typeof xhr.response === 'object') {
-			return xhr.response;
-		} else if(xhr.response && typeof xhr.response === 'string') {
-			return JSON.parse(xhr.response);
-		} else if(xhr.responseText) {
-			return JSON.parse(xhr.responseText);
-		}
-	}
+  function noop() {}
 
-	function loadAsset(path, callback, errorCallback) {
-		var response;
-		var xhr = new XMLHttpRequest();
-		xhr.open('GET', path, true);
-		// set responseType after calling open or IE will break.
-		try {
-		    // This crashes on Android WebView prior to KitKat
-		    xhr.responseType = "json";
-		} catch (err) {}
-	    xhr.send();
-	    xhr.onreadystatechange = function () {
-	        if (xhr.readyState == 4) {
-	            if(xhr.status == 200){
-	            	response = formatResponse(xhr);
-	            	callback(response);
-	            }else{
-	                try{
-	            		response = formatResponse(xhr);
-	            		callback(response);
-	                }catch(err){
-	                	if(errorCallback) {
-	                		errorCallback(err);
-	                	}
-	                }
-	            }
-	        }
-	    };
-	}
-	return {
-		load: loadAsset
-	}
+  function loadNetworkAsset(path, callback, errorCallback) {
+    wx.request({
+      url: path,
+      method: 'GET',
+      dataType: 'json',
+      success: function (res) {
+        if (Object.prototype.toString.call(res.data) === '[object Object]') {
+          callback(res.data)
+        } else {
+          errorCallback()
+        }
+      },
+      fail: function (res) {
+        console.error(res.errMsg)
+        errorCallback(res)
+      },
+    })
+  }
+
+  function loadLocalAsset(path, callback, errorCallback) {
+    var fs = wx.getFileSystemManager()
+    fs.readFile({
+      filePath: path,
+      encoding: 'utf8',
+      success: function (res) {
+        try {
+          var jsonData = JSON.parse(res.data)
+          callback(jsonData)
+        } catch (e) {
+          console.error(e)
+          errorCallback(e)
+        }
+      },
+      fail: function (res) {
+        console.error(res)
+        errorCallback(res)
+      },
+    })
+  }
+
+  function loadAsset(path, callback, errorCallback) {
+    if (/^https?\:\/\//.test(path)) {
+      loadNetworkAsset(path, callback, errorCallback || noop)
+    } else {
+      loadLocalAsset(path, callback, errorCallback || noop)
+    }
+  }
+  return {
+    load: loadAsset
+  }
 }())

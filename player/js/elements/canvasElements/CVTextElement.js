@@ -19,7 +19,8 @@ function CVTextElement(data, globalData, comp){
 }
 extendPrototype([BaseElement,TransformElement,CVBaseElement,HierarchyElement,FrameElement,RenderableElement,ITextElement], CVTextElement);
 
-CVTextElement.prototype.tHelper = createTag('canvas').getContext('2d');
+// unused
+// CVTextElement.prototype.tHelper = createTag('canvas').getContext('2d');
 
 CVTextElement.prototype.buildNewText = function(){
     var documentData = this.textProperty.currentData;

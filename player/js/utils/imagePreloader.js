@@ -1,6 +1,8 @@
 var ImagePreloader = (function(){
 
+    // TODO
     var proxyImage = (function(){
+        return null
         var canvas = createTag('canvas');
         canvas.width = 1;
         canvas.height = 1;
@@ -37,6 +39,8 @@ var ImagePreloader = (function(){
         return path;
     }
 
+
+    // TODO
     function createImageData(assetData) {
         var path = getAssetsPath(assetData, this.assetsPath, this.path);
         var img = createTag('img');

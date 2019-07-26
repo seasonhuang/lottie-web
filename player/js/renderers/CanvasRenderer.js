@@ -1,30 +1,28 @@
 function CanvasRenderer(animationItem, config){
-    this.animationItem = animationItem;
-    this.renderConfig = {
-        clearCanvas: (config && config.clearCanvas !== undefined) ? config.clearCanvas : true,
-        context: (config && config.context) || null,
-        progressiveLoad: (config && config.progressiveLoad) || false,
-        preserveAspectRatio: (config && config.preserveAspectRatio) || 'xMidYMid meet',
-        imagePreserveAspectRatio: (config && config.imagePreserveAspectRatio) || 'xMidYMid slice',
-        className: (config && config.className) || ''
-    };
-    this.renderConfig.dpr = (config && config.dpr) || 1;
-    if (this.animationItem.wrapper) {
-        this.renderConfig.dpr = (config && config.dpr) || window.devicePixelRatio || 1;
-    }
-    this.renderedFrame = -1;
-    this.globalData = {
-        frameNum: -1,
-        _mdf: false,
-        renderConfig: this.renderConfig,
-        currentGlobalAlpha: -1
-    };
-    this.contextData = new CVContextData();
-    this.elements = [];
-    this.pendingElements = [];
-    this.transformMat = new Matrix();
-    this.completeLayers = false;
-    this.rendererType = 'canvas';
+  this.animationItem = animationItem;
+  this.renderConfig = {
+    clearCanvas: config.clearCanvas !== undefined ? config.clearCanvas : true,
+    canvas: config.canvas || null,
+    context: config.context || null,
+    progressiveLoad: false,
+    preserveAspectRatio: config.preserveAspectRatio || 'xMidYMid meet',
+    imagePreserveAspectRatio: 'xMidYMid slice',
+    className: '',
+  };
+  this.renderConfig.dpr = (config && config.dpr) || 1;
+  this.renderedFrame = -1;
+  this.globalData = {
+    frameNum: -1,
+    _mdf: false,
+    renderConfig: this.renderConfig,
+    currentGlobalAlpha: -1,
+  };
+  this.contextData = new CVContextData();
+  this.elements = [];
+  this.pendingElements = [];
+  this.transformMat = new Matrix();
+  this.completeLayers = false;
+  this.rendererType = 'canvas';
 }
 extendPrototype([BaseRenderer],CanvasRenderer);
 
@@ -135,6 +133,7 @@ CanvasRenderer.prototype.restore = function(actionFlag){
     }
 };
 
+// TODO
 CanvasRenderer.prototype.configAnimation = function(animData){
     if(this.animationItem.wrapper){
         this.animationItem.container = createTag('canvas');
@@ -161,7 +160,8 @@ CanvasRenderer.prototype.configAnimation = function(animData){
         tx:0,
         ty:0
     };
-    this.setupGlobalData(animData, document.body);
+    // TODO remove document.body due to not support custom font
+    this.setupGlobalData(animData);
     this.globalData.canvasContext = this.canvasContext;
     this.globalData.renderer = this;
     this.globalData.isDashed = false;
@@ -172,6 +172,7 @@ CanvasRenderer.prototype.configAnimation = function(animData){
     this.updateContainerSize();
 };
 
+// TODO
 CanvasRenderer.prototype.updateContainerSize = function () {
     this.reset();
     var elementWidth,elementHeight;
@@ -181,8 +182,8 @@ CanvasRenderer.prototype.updateContainerSize = function () {
         this.animationItem.container.setAttribute('width',elementWidth * this.renderConfig.dpr );
         this.animationItem.container.setAttribute('height',elementHeight * this.renderConfig.dpr);
     }else{
-        elementWidth = this.canvasContext.canvas.width * this.renderConfig.dpr;
-        elementHeight = this.canvasContext.canvas.height * this.renderConfig.dpr;
+        elementWidth = this.renderConfig.canvas.width * this.renderConfig.dpr;
+        elementHeight = this.renderConfig.canvas.height * this.renderConfig.dpr;
     }
     var elementRel,animationRel;
     if(this.renderConfig.preserveAspectRatio.indexOf('meet') !== -1 || this.renderConfig.preserveAspectRatio.indexOf('slice') !== -1){
@@ -318,10 +319,12 @@ CanvasRenderer.prototype.checkPendingElements  = function(){
     }
 };
 
+// TODO
 CanvasRenderer.prototype.hide = function(){
     this.animationItem.container.style.display = 'none';
 };
 
+// TODO
 CanvasRenderer.prototype.show = function(){
     this.animationItem.container.style.display = 'block';
 };

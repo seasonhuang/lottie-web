@@ -7,6 +7,24 @@ var animationManager = (function(){
     var _stopped = true;
     var _isFrozen = false;
 
+    var requestAnimationFrame = function (callback) {
+      var currTime = Date.now();
+      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+      var id = setTimeout(function () {
+        callback(currTime + timeToCall);
+      }, timeToCall);
+      lastTime = currTime + timeToCall;
+      return id;
+    };
+    var cancelAnimationFrame = function (id) {
+      clearTimeout(id);
+    };
+
+    function _resolveRAF(canvas) {
+      requestAnimationFrame = canvas.requestAnimationFrame
+      cancelAnimationFrame = canvas.cancelAnimationFrame
+    }
+
     function removeElement(ev){
         var i = 0;
         var animItem = ev.target;
@@ -70,6 +88,7 @@ var animationManager = (function(){
         var animItem = new AnimationItem();
         setupAnimation(animItem, null);
         animItem.setParams(params);
+        _resolveRAF(params.container);
         return animItem;
     }
 
@@ -95,22 +114,22 @@ var animationManager = (function(){
         }
     }
     function resume(nowTime) {
-        var elapsedTime = nowTime - initTime;
-        var i;
-        for(i=0;i<len;i+=1){
-            registeredAnimations[i].animation.advanceTime(elapsedTime);
-        }
-        initTime = nowTime;
-        if(playingAnimationsNum && !_isFrozen) {
-            window.requestAnimationFrame(resume);
-        } else {
-            _stopped = true;
-        }
+      var elapsedTime = nowTime - initTime;
+      var i;
+      for (i = 0; i < len; i += 1) {
+        registeredAnimations[i].animation.advanceTime(elapsedTime);
+      }
+      initTime = nowTime;
+      if (playingAnimationsNum && !_isFrozen) {
+        requestAnimationFrame(resume);
+      } else {
+        _stopped = true;
+      }
     }
 
-    function first(nowTime){
-        initTime = nowTime;
-        window.requestAnimationFrame(resume);
+    function first(nowTime) {
+      initTime = nowTime;
+      requestAnimationFrame(resume);
     }
 
     function pause(animation) {
@@ -180,13 +199,13 @@ var animationManager = (function(){
         }
     }
 
-    function activate(){
-        if(!_isFrozen && playingAnimationsNum){
-            if(_stopped) {
-                window.requestAnimationFrame(first);
-                _stopped = false;
-            }
+    function activate() {
+      if (!_isFrozen && playingAnimationsNum) {
+        if (_stopped) {
+          requestAnimationFrame(first);
+          _stopped = false;
         }
+      }
     }
 
     function freeze() {

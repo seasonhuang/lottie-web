@@ -32,61 +32,46 @@ var AnimationItem = function () {
 extendPrototype([BaseEvent], AnimationItem);
 
 AnimationItem.prototype.setParams = function(params) {
-    if(params.context){
-        this.context = params.context;
-    }
-    if(params.wrapper || params.container){
-        this.wrapper = params.wrapper || params.container;
-    }
-    var animType = params.animType ? params.animType : params.renderer ? params.renderer : 'svg';
-    switch(animType){
-        case 'canvas':
-            this.renderer = new CanvasRenderer(this, params.rendererSettings);
-            break;
-        case 'svg':
-            this.renderer = new SVGRenderer(this, params.rendererSettings);
-            break;
-        default:
-            this.renderer = new HybridRenderer(this, params.rendererSettings);
-            break;
-    }
-    this.renderer.setProjectInterface(this.projectInterface);
-    this.animType = animType;
+  if (!params.container) {
+    throw new Error('require container')
+  }
+  this.renderer = new CanvasRenderer(this, {
+    clearCanvas: params.clearCanvas,
+    canvas: params.container,
+    context: params.container.getContext('2d'),
+    preserveAspectRatio: params.preserveAspectRatio,
+  })
+  this.renderer.setProjectInterface(this.projectInterface);
 
-    if(params.loop === '' || params.loop === null){
-    }else if(params.loop === false){
-        this.loop = false;
-    }else if(params.loop === true){
-        this.loop = true;
-    }else{
-        this.loop = parseInt(params.loop);
-    }
-    this.autoplay = 'autoplay' in params ? params.autoplay : true;
-    this.name = params.name ? params.name :  '';
-    this.autoloadSegments = params.hasOwnProperty('autoloadSegments') ? params.autoloadSegments :  true;
-    this.assetsPath = params.assetsPath;
-    if(params.animationData){
-        this.configAnimation(params.animationData);
-    }else if(params.path){
-        if(params.path.substr(-4) != 'json'){
-            if (params.path.substr(-1, 1) != '/') {
-                params.path += '/';
-            }
-            params.path += 'data.json';
-        }
+  if (typeof params.loop === 'boolean') {
+    this.loop = params.loop
+  } else {
+    this.loop = parseInt(params.loop)
+    this.loop = isNaN(this.loop) ? true : this.loop
+  }
 
-        if(params.path.lastIndexOf('\\') != -1){
-            this.path = params.path.substr(0,params.path.lastIndexOf('\\')+1);
-        }else{
-            this.path = params.path.substr(0,params.path.lastIndexOf('/')+1);
-        }
-        this.fileName = params.path.substr(params.path.lastIndexOf('/')+1);
-        this.fileName = this.fileName.substr(0,this.fileName.lastIndexOf('.json'));
+  this.autoplay = 'autoplay' in params ? params.autoplay : true;
+  this.name = params.name ? params.name :  '';
+  this.autoloadSegments = params.hasOwnProperty('autoloadSegments') ? params.autoloadSegments : true;
+  this.assetsPath = params.assetsPath;
 
-        assetLoader.load(params.path, this.configAnimation.bind(this), function() {
-            this.trigger('data_failed');
-        }.bind(this));
+  if (params.animationData) {
+    this.configAnimation(params.animationData);
+  } else if (params.path) {
+    if (params.path.lastIndexOf('\\') !== -1) {
+      this.path = params.path.substr(0, params.path.lastIndexOf('\\') + 1);
+    } else {
+      this.path = params.path.substr(0, params.path.lastIndexOf('/') + 1);
     }
+    this.fileName = params.path.substr(params.path.lastIndexOf('/') + 1);
+    this.fileName = this.fileName.substr(0, this.fileName.lastIndexOf('.json'));
+
+    assetLoader.load(params.path, this.configAnimation.bind(this), function () {
+        this.trigger('data_failed');
+    }.bind(this));
+  } else {
+    throw new Error('require path or animationData')
+  }
 };
 
 AnimationItem.prototype.setData = function (wrapper, animationData) {

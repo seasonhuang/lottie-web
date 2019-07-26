@@ -268,9 +268,9 @@ CVShapeElement.prototype.drawLayer = function() {
         for(j=0;j<jLen;j+=1){
             if(type === 'st' || type === 'gs'){
                 ctx.beginPath();
-                if(currentStyle.da){
-                    ctx.setLineDash(currentStyle.da);
-                    ctx.lineDashOffset = currentStyle.do;
+                if (currentStyle.da) {
+                  ctx.setLineDash(Array.from(currentStyle.da));
+                  ctx.lineDashOffset = currentStyle.do;
                 }
             }
             nodes = elems[j].trNodes;
@@ -293,7 +293,11 @@ CVShapeElement.prototype.drawLayer = function() {
             }
         }
         if(type !== 'st' && type !== 'gs'){
-            ctx.fill(currentStyle.r);
+            if (isIOS) {
+              ctx.fill()
+            } else {
+              ctx.fill(currentStyle.r);
+            }
         }
         renderer.restore();
     }
