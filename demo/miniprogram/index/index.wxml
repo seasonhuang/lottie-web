@@ -1,0 +1,4 @@
+<view class="intro">欢迎使用代码片段，可在控制台查看代码片段的说明和文档</view>
+<view style="text-align: center;">
+  <canvas id="c1" type="2d" style="display: inline-block; width: 300px; height: 300px;"></canvas>
+</view>
