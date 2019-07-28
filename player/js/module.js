@@ -73,13 +73,10 @@ function getFactory(name) {
 
 lottiejs.play = animationManager.play;
 lottiejs.pause = animationManager.pause;
-lottiejs.setLocationHref = setLocationHref;
 lottiejs.togglePause = animationManager.togglePause;
 lottiejs.setSpeed = animationManager.setSpeed;
 lottiejs.setDirection = animationManager.setDirection;
 lottiejs.stop = animationManager.stop;
-lottiejs.searchAnimations = searchAnimations;
-lottiejs.registerAnimation = animationManager.registerAnimation;
 lottiejs.loadAnimation = loadAnimation;
 lottiejs.setSubframeRendering = setSubframeRendering;
 lottiejs.resize = animationManager.resize;
@@ -87,7 +84,6 @@ lottiejs.resize = animationManager.resize;
 lottiejs.goToAndStop = animationManager.goToAndStop;
 lottiejs.destroy = animationManager.destroy;
 lottiejs.setQuality = setQuality;
-lottiejs.inBrowser = inBrowser;
 lottiejs.installPlugin = installPlugin;
 lottiejs.freeze = animationManager.freeze;
 lottiejs.unfreeze = animationManager.unfreeze;
