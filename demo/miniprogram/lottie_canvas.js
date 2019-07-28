@@ -18,6 +18,9 @@ var bm_max = Math.max;
 var bm_min = Math.min;
 var blitter = 10;
 
+var systemInfo = wx.getSystemInfoSync()
+var isIOS = systemInfo.platform === 'ios'
+
 var BMMath = {};
 (function(){
     var propertyNames = ["abs", "acos", "acosh", "asin", "asinh", "atan", "atanh", "atan2", "ceil", "cbrt", "expm1", "clz32", "cos", "cosh", "exp", "floor", "fround", "hypot", "imul", "log", "log1p", "log2", "log10", "max", "min", "pow", "random", "round", "sign", "sin", "sinh", "sqrt", "tan", "tanh", "trunc", "E", "LN10", "LN2", "LOG10E", "LOG2E", "PI", "SQRT1_2", "SQRT2"];
@@ -280,7 +283,6 @@ var createTypedArray = (function(){
 function createSizedArray(len) {
 	return Array.apply(null,{length:len});
 }
-// TODO
 function createTag(type) {
 	//return {appendChild:function(){},setAttribute:function(){},style:{}}
 	return document.createElement(type);
@@ -1749,7 +1751,6 @@ var FontManager = (function(){
     , 2367, 2368, 2369, 2370, 2371, 2372, 2373, 2374, 2375, 2376, 2377, 2378, 2379
     , 2380, 2381, 2382, 2383, 2387, 2388, 2389, 2390, 2391, 2402, 2403]);
 
-    // TODO
     function setUpNode(font, family){
         var parentNode = createTag('span');
         parentNode.style.fontFamily    = family;
@@ -1816,7 +1817,6 @@ var FontManager = (function(){
         }
     }
 
-    // TODO
     function createHelper(def, fontData){
         var tHelper = createNS('text');
         tHelper.style.fontSize = '100px';
@@ -4304,7 +4304,6 @@ var assetLoader = (function () {
       filePath: path,
       encoding: 'utf8',
       success: function (res) {
-        console.log('readFile res', res)
         try {
           var jsonData = JSON.parse(res.data)
           callback(jsonData)
@@ -6097,32 +6096,30 @@ SVGRenderer.prototype.show = function(){
 };
 
 function CanvasRenderer(animationItem, config){
-    this.animationItem = animationItem;
-    this.renderConfig = {
-        clearCanvas: (config && config.clearCanvas !== undefined) ? config.clearCanvas : true,
-        context: (config && config.context) || null,
-        progressiveLoad: (config && config.progressiveLoad) || false,
-        preserveAspectRatio: (config && config.preserveAspectRatio) || 'xMidYMid meet',
-        imagePreserveAspectRatio: (config && config.imagePreserveAspectRatio) || 'xMidYMid slice',
-        className: (config && config.className) || ''
-    };
-    this.renderConfig.dpr = (config && config.dpr) || 1;
-    if (this.animationItem.wrapper) {
-        this.renderConfig.dpr = (config && config.dpr) || wx.getSystemInfoSync().pixelRatio || 1;
-    }
-    this.renderedFrame = -1;
-    this.globalData = {
-        frameNum: -1,
-        _mdf: false,
-        renderConfig: this.renderConfig,
-        currentGlobalAlpha: -1
-    };
-    this.contextData = new CVContextData();
-    this.elements = [];
-    this.pendingElements = [];
-    this.transformMat = new Matrix();
-    this.completeLayers = false;
-    this.rendererType = 'canvas';
+  this.animationItem = animationItem;
+  this.renderConfig = {
+    clearCanvas: config.clearCanvas !== undefined ? config.clearCanvas : true,
+    canvas: config.canvas || null,
+    context: config.context || null,
+    progressiveLoad: false,
+    preserveAspectRatio: config.preserveAspectRatio || 'xMidYMid meet',
+    imagePreserveAspectRatio: 'xMidYMid slice',
+    className: '',
+  };
+  this.renderConfig.dpr = (config && config.dpr) || 1;
+  this.renderedFrame = -1;
+  this.globalData = {
+    frameNum: -1,
+    _mdf: false,
+    renderConfig: this.renderConfig,
+    currentGlobalAlpha: -1,
+  };
+  this.contextData = new CVContextData();
+  this.elements = [];
+  this.pendingElements = [];
+  this.transformMat = new Matrix();
+  this.completeLayers = false;
+  this.rendererType = 'canvas';
 }
 extendPrototype([BaseRenderer],CanvasRenderer);
 
@@ -6282,8 +6279,8 @@ CanvasRenderer.prototype.updateContainerSize = function () {
         this.animationItem.container.setAttribute('width',elementWidth * this.renderConfig.dpr );
         this.animationItem.container.setAttribute('height',elementHeight * this.renderConfig.dpr);
     }else{
-        elementWidth = this.canvasContext.canvas.width * this.renderConfig.dpr;
-        elementHeight = this.canvasContext.canvas.height * this.renderConfig.dpr;
+        elementWidth = this.renderConfig.canvas.width * this.renderConfig.dpr;
+        elementHeight = this.renderConfig.canvas.height * this.renderConfig.dpr;
     }
     var elementRel,animationRel;
     if(this.renderConfig.preserveAspectRatio.indexOf('meet') !== -1 || this.renderConfig.preserveAspectRatio.indexOf('slice') !== -1){
@@ -7595,7 +7592,6 @@ IImageElement.prototype.createContent = function(){
 
     var assetPath = this.globalData.getAssetsPath(this.assetData);
 
-    // TODO
     this.innerElem = createNS('image');
     this.innerElem.setAttribute('width',this.assetData.w+"px");
     this.innerElem.setAttribute('height',this.assetData.h+"px");
@@ -8046,7 +8042,6 @@ CVImageElement.prototype.prepareFrame = IImageElement.prototype.prepareFrame;
 CVImageElement.prototype.createContent = function(){
 
     if (this.img.width && (this.assetData.w !== this.img.width || this.assetData.h !== this.img.height)) {
-        // TODO
         var canvas = createTag('canvas');
         canvas.width = this.assetData.w;
         canvas.height = this.assetData.h;
@@ -8066,7 +8061,6 @@ CVImageElement.prototype.createContent = function(){
             heightCrop = widthCrop/canvasRel;
         }
         ctx.drawImage(this.img,(imgW-widthCrop)/2,(imgH-heightCrop)/2,widthCrop,heightCrop,0,0,this.assetData.w,this.assetData.h);
-        // TODO: use ImageData
         this.img = canvas;
     }
 
@@ -8437,9 +8431,9 @@ CVShapeElement.prototype.drawLayer = function() {
         for(j=0;j<jLen;j+=1){
             if(type === 'st' || type === 'gs'){
                 ctx.beginPath();
-                if(currentStyle.da){
-                    ctx.setLineDash(currentStyle.da);
-                    ctx.lineDashOffset = currentStyle.do;
+                if (currentStyle.da) {
+                  ctx.setLineDash(Array.from(currentStyle.da));
+                  ctx.lineDashOffset = currentStyle.do;
                 }
             }
             nodes = elems[j].trNodes;
@@ -8462,7 +8456,11 @@ CVShapeElement.prototype.drawLayer = function() {
             }
         }
         if(type !== 'st' && type !== 'gs'){
-            ctx.fill(currentStyle.r);
+            if (isIOS) {
+                ctx.fill()
+            } else {
+                ctx.fill(currentStyle.r);
+            }
         }
         renderer.restore();
     }
@@ -9112,8 +9110,8 @@ AnimationItem.prototype.setParams = function(params) {
     throw new Error('require container')
   }
   this.renderer = new CanvasRenderer(this, {
-    dpr: params.dpr || wx.getSystemInfoSync().pixelRatio,
     clearCanvas: params.clearCanvas,
+    canvas: params.container,
     context: params.container.getContext('2d'),
     preserveAspectRatio: params.preserveAspectRatio,
   })

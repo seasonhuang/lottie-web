@@ -9,16 +9,21 @@ Page({
     console.log('代码片段是一种迷你、可分享的小程序或小游戏项目，可用于分享小程序和小游戏的开发经验、展示组件和 API 的使用、复现开发问题和 Bug 等。可点击以下链接查看代码片段的详细文档：')
     console.log('https://mp.weixin.qq.com/debug/wxadoc/dev/devtools/devtools.html')
   },
-  onReady() {
+  play() {
     wx.createSelectorQuery().selectAll('#c1').node(res => {
+      // console.log('selectorQuery res', res)
       const canvas = res[0].node
       const context = canvas.getContext('2d')
+      // console.log('context', context)
+
+      canvas.width = 300
+      canvas.height = 300
 
       bodymovin.loadAnimation({
         container: canvas,
         loop: true,
         autoplay: true,
-        path: 'data.png',
+        path: 'json/bodymovin.png',
       })
     }).exec()
   }
