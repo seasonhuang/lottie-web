@@ -175,6 +175,7 @@ AnimationItem.prototype.imagesLoaded = function() {
 AnimationItem.prototype.preloadImages = function() {
     this.imagePreloader.setAssetsPath(this.assetsPath);
     this.imagePreloader.setPath(this.path);
+    this.imagePreloader.setRelativeCanvas(this.renderer.canvas)
     this.imagePreloader.loadAssets(this.animationData.assets, this.imagesLoaded.bind(this));
 }
 

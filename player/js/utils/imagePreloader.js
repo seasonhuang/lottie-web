@@ -1,24 +1,14 @@
 var ImagePreloader = (function(){
 
-    // TODO
-    var proxyImage = (function(){
-        return null
-        var canvas = createTag('canvas');
-        canvas.width = 1;
-        canvas.height = 1;
-        var ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'rgba(0,0,0,0)';
-        ctx.fillRect(0, 0, 1, 1);
-        return canvas;
-    }())
-
-    function imageLoaded(){
+    function imageLoaded() {
+      setTimeout(function () {
         this.loadedAssets += 1;
-        if(this.loadedAssets === this.totalImages){
-            if(this.imagesLoadedCb) {
-                this.imagesLoadedCb(null);
-            }
+        if (this.loadedAssets === this.totalImages) {
+          if (this.imagesLoadedCb) {
+            this.imagesLoadedCb(null);
+          }
         }
+      }.bind(this), 0)
     }
 
     function getAssetsPath(assetData, assetsPath, original_path) {
@@ -42,20 +32,20 @@ var ImagePreloader = (function(){
 
     // TODO
     function createImageData(assetData) {
-        var path = getAssetsPath(assetData, this.assetsPath, this.path);
-        var img = createTag('img');
-        img.crossOrigin = 'anonymous';
-        img.addEventListener('load', this._imageLoaded.bind(this), false);
-        img.addEventListener('error', function() {
-            ob.img = proxyImage;
-            this._imageLoaded();
-        }.bind(this), false);
-        img.src = path;
-        var ob = {
-            img: img,
-            assetData: assetData
-        }
-        return ob;
+      var path = getAssetsPath(assetData, this.assetsPath, this.path);
+      var img = this.canvas.createImage()
+      img.onload = this._imageLoaded.bind(this)
+      img.onerror = function () {
+        // TODO 1x1 base64
+        ob.img = null;
+        this._imageLoaded();
+      }.bind(this)
+      img.src = path;
+      var ob = {
+        img: img,
+        assetData: assetData,
+      }
+      return ob;
     }
 
     function loadAssets(assets, cb){
@@ -75,6 +65,10 @@ var ImagePreloader = (function(){
 
     function setAssetsPath(path){
         this.assetsPath = path || '';
+    }
+
+    function setRelativeCanvas(canvas) {
+      this.canvas = canvas || null;
     }
 
     function getImage(assetData) {
@@ -100,6 +94,7 @@ var ImagePreloader = (function(){
         this.loadAssets = loadAssets;
         this.setAssetsPath = setAssetsPath;
         this.setPath = setPath;
+        this.setRelativeCanvas = setRelativeCanvas;
         this.loaded = loaded;
         this.destroy = destroy;
         this.getImage = getImage;

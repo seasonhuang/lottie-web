@@ -2,13 +2,13 @@ function CanvasRenderer(animationItem, config){
   this.animationItem = animationItem;
   this.renderConfig = {
     clearCanvas: config.clearCanvas !== undefined ? config.clearCanvas : true,
-    canvas: config.canvas || null,
     context: config.context || null,
     progressiveLoad: false,
     preserveAspectRatio: config.preserveAspectRatio || 'xMidYMid meet',
     imagePreserveAspectRatio: 'xMidYMid slice',
     className: '',
   };
+  this.canvas = config.canvas || null;
   this.renderConfig.dpr = (config && config.dpr) || 1;
   this.renderedFrame = -1;
   this.globalData = {
@@ -182,8 +182,8 @@ CanvasRenderer.prototype.updateContainerSize = function () {
         this.animationItem.container.setAttribute('width',elementWidth * this.renderConfig.dpr );
         this.animationItem.container.setAttribute('height',elementHeight * this.renderConfig.dpr);
     }else{
-        elementWidth = this.renderConfig.canvas.width * this.renderConfig.dpr;
-        elementHeight = this.renderConfig.canvas.height * this.renderConfig.dpr;
+        elementWidth = this.canvas.width * this.renderConfig.dpr;
+        elementHeight = this.canvas.height * this.renderConfig.dpr;
     }
     var elementRel,animationRel;
     if(this.renderConfig.preserveAspectRatio.indexOf('meet') !== -1 || this.renderConfig.preserveAspectRatio.indexOf('slice') !== -1){
